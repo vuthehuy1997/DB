@@ -7,7 +7,6 @@ import numpy as np
 from experiment import Structure, Experiment
 from concern.config import Configurable, Config
 import math
-import time
 
 def main():
     parser = argparse.ArgumentParser(description='Text Recognition Training')
@@ -55,13 +54,15 @@ class Demo:
         self.model_path = self.args['resume']
 
     def init_torch_tensor(self):
-        # Use gpu or not
-        torch.set_default_tensor_type('torch.FloatTensor')
-        if torch.cuda.is_available():
-            self.device = torch.device('cuda')
-            torch.set_default_tensor_type('torch.cuda.FloatTensor')
-        else:
-            self.device = torch.device('cpu')
+        self.device = torch.device('cuda')
+        torch.set_default_tensor_type('torch.cuda.FloatTensor')
+        # # Use gpu or not
+        # torch.set_default_tensor_type('torch.FloatTensor')
+        # if torch.cuda.is_available():
+        #     self.device = torch.device('cuda')
+        #     torch.set_default_tensor_type('torch.cuda.FloatTensor')
+        # else:
+        #     self.device = torch.device('cpu')
 
     def init_model(self):
         model = self.structure.builder.build(self.device)
@@ -135,21 +136,14 @@ class Demo:
         batch['shape'] = [original_shape]
         with torch.no_grad():
             batch['image'] = img
-            st = time.time()
             pred = model.forward(batch, training=False)
             output = self.structure.representer.represent(batch, pred, is_output_polygon=self.args['polygon']) 
-            print('time model inference: ', time.time() - st)
-            st = time.time()
-            pred = model.forward(batch, training=False)
-            output = self.structure.representer.represent(batch, pred, is_output_polygon=self.args['polygon']) 
-            print('time model inference: ', time.time() - st)
             if not os.path.isdir(self.args['result_dir']):
                 os.mkdir(self.args['result_dir'])
             self.format_output(batch, output)
 
             if visualize and self.structure.visualizer:
                 vis_image = self.structure.visualizer.demo_visualize(image_path, output)
-                print('save img')
                 cv2.imwrite(os.path.join(self.args['result_dir'], image_path.split('/')[-1].split('.')[0]+'.jpg'), vis_image)
 
 if __name__ == '__main__':

@@ -48,6 +48,7 @@ class SegDetectorModel(nn.Module):
         return os.path.join('seg_detector', args['backbone'], args['loss_class'])
 
     def forward(self, batch, training=True):
+        print(self.device)
         if isinstance(batch, dict):
             data = batch['image'].to(self.device)
         else:

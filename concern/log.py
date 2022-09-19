@@ -34,8 +34,6 @@ class Logger(Configurable):
         cmd = kwargs['cmd']
         self.name = cmd['name']
         self.log_dir = os.path.join(self.log_dir, self.name)
-        print(self.log_dir, self.name)
-        exit()
         try:
             self.verbose = cmd['verbose']
         except:

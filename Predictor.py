@@ -2,17 +2,15 @@
 import argparse
 import os
 import torch
-import yaml
 import cv2
 import numpy as np
 import sys
 import math
 
-sys.path.append('./modules/DB')
 from experiment import Structure, Experiment
 from concern.config import Configurable, Config, State
 
-class DB():
+class Predictor():
     def __init__(self, config):
         cwd = os.getcwd()
         
@@ -44,9 +42,10 @@ class DB():
         self.model = self.init_model()
         self.resume(self.model, self.model_path)
         self.model.eval()
-        print('Load DB finished')
+        print('hi')
 
         os.chdir(cwd)
+
 
     def init_torch_tensor(self, device):
         # Use gpu or not
@@ -82,7 +81,6 @@ class DB():
         return resized_img
     
     def preprocess_image(self, image):
-        print(image.shape)
         img = image.astype('float32')
         original_shape = img.shape[:2]
         img = self.resize_image(img)
@@ -129,7 +127,7 @@ class DB():
                         # result = [int(x) for x in box]
                         result = [[int(box[x]), int(box[x+1])] for x in range(0,len(box),2)]
                         score = scores[i]
-                        # result.append(float(score))
+                        result.append(float(score))
                         results.append(result)
                 else:
                     for i in range(boxes.shape[0]):
@@ -139,7 +137,7 @@ class DB():
                         box = boxes[i,:,:].reshape(-1).tolist()
                         # result = [int(x) for x in box]
                         result = [[int(box[x]), int(box[x+1])] for x in range(0,len(box),2)]
-                        # result.append(float(score))
+                        result.append(float(score))
                         results.append(result)
         return results
     
@@ -228,9 +226,4 @@ class DB():
                 cv2.imwrite(os.path.join(self.args['result_dir'], image_path.split('/')[-1].split('.')[0]+'.jpg'), vis_image)
                 print('finished')
 if __name__ == '__main__':
-    with open('configs/config.yaml') as f:
-        config = yaml.safe_load(f)
-    model = DB(config['db'])
-    img = cv2.imread('/data/publication_safety/ocr_trc/data/demo/000_001.jpg')
-    print(model.predict(img))
-    print(model)
+    main()

@@ -1,5 +1,6 @@
 import torch.nn as nn
 import math
+import torch
 import torch.utils.model_zoo as model_zoo
 BatchNorm2d = nn.BatchNorm2d
 
@@ -308,7 +309,7 @@ def deformable_resnet50(pretrained=True, **kwargs):
                    **kwargs)
     if pretrained:
         model.load_state_dict(model_zoo.load_url(
-            model_urls['resnet50']), strict=False)
+            model_urls['resnet50'], map_location=torch.device('cuda:0')),strict=False)
     return model
 
 
